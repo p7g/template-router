@@ -1,15 +1,23 @@
 {
   "name": "template-router",
-  "version": "1.0.0",
-  "description": "A DSL for routing",
+  "version": "1.0.1",
+  "description": "A DSL for routing based on tagged template literals",
+  "author": "Patrick Gingras",
   "repository": "https://github.com/p7g/template-router",
+  "license": "MIT",
   "main": "index.js",
+  "keywords": [
+    "ES6",
+    "ES2015",
+    "template-literals",
+    "routing",
+    "express",
+    "koa"
+  ],
   "scripts": {
     "test": "ava",
     "test:watch": "ava --watch"
   },
-  "author": "Patrick Gingras",
-  "license": "MIT",
   "devDependencies": {
     "ava": "^1.2.1",
     "eslint": "^5.13.0",
