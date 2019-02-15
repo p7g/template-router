@@ -23,12 +23,12 @@ function parse(tokenLists, values) {
         token = tokens.shift();
       }
       if (token === undefined) {
+        if (values.length === 0) {
+          throw new SyntaxError('Expected method or interpolated value');
+        }
         route.methods.push(values.shift());
         tokens = tokenLists.shift();
       } else {
-        if (token.type === 'comma') {
-          token = tokens.shift();
-        }
         if (token.type !== 'identifier') {
           throw new SyntaxError(`Expected identifier, found ${token.type}`);
         }
@@ -41,7 +41,7 @@ function parse(tokenLists, values) {
         route.methods.push(name.toLowerCase());
       }
 
-      token = tokens.shift();
+      token = tokens && tokens.shift();
     } while (token && token.type === 'comma');
 
     // read paths
@@ -50,6 +50,9 @@ function parse(tokenLists, values) {
         token = tokens.shift();
       }
       if (token === undefined) {
+        if (values.length === 0) {
+          throw new SyntaxError('Expected method or interpolated value');
+        }
         route.paths.push(values.shift());
         tokens = tokenLists.shift();
       } else {
@@ -62,7 +65,7 @@ function parse(tokenLists, values) {
         route.paths.push(name);
       }
 
-      token = tokens.shift();
+      token = tokens && tokens.shift();
     } while (token && token.type === 'comma');
 
     const handler = values.shift();

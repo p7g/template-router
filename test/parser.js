@@ -18,16 +18,30 @@ test('parsing valid strings', (t) => {
   t.deepEqual([expected], parse([lex(withWhitespace)], [id]), 'Works with extra spaces');
 });
 
+test('fails if no input', (t) => {
+  t.plan(1);
+
+  t.throws(() => parse());
+});
+
 test('fails on invalid strings', (t) => {
-  t.plan(4);
+  t.plan(8);
 
   const missingMethod = '/some/path';
   const missingPath = 'GET';
   const invalidMethod = 'HULLO /this/is/a/path';
   const double = 'POST / GET /';
+  const twoCommas = 'POST,,';
+  const twoCommas2 = 'POST /,,';
 
-  t.throws(() => parse(lex(missingMethod)));
-  t.throws(() => parse(lex(invalidMethod)));
-  t.throws(() => parse(lex(missingPath)));
-  t.throws(() => parse(lex(double)));
+  const handlers = ['handler'];
+
+  t.throws(() => parse([lex(missingMethod)], handlers), SyntaxError);
+  t.throws(() => parse([lex(invalidMethod)], handlers), SyntaxError);
+  t.throws(() => parse([lex(missingPath)], handlers), SyntaxError);
+  t.throws(() => parse([lex(double)], handlers), SyntaxError);
+  t.throws(() => parse([lex(twoCommas)], handlers), SyntaxError);
+  t.throws(() => parse([[]], []), SyntaxError);
+  t.throws(() => parse([lex('GET')], []), SyntaxError);
+  t.throws(() => parse([lex(twoCommas2)], handlers), SyntaxError);
 });
