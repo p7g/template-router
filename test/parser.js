@@ -1,8 +1,9 @@
 const test = require('ava');
 const parse = require('../src/parser');
-const lex = require('../src/lexer');
+const Lexer = require('../src/lexer');
 
 const id = a => a;
+const lex = string => (new Lexer(string)).lex();
 
 test('parsing valid strings', (t) => {
   t.plan(2);

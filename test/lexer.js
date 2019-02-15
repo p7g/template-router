@@ -1,5 +1,5 @@
 const test = require('ava');
-const lex = require('../src/lexer');
+const Lexer = require('../src/lexer');
 
 test('lexes identifiers and commas', (t) => {
   t.plan(1);
@@ -13,11 +13,11 @@ test('lexes identifiers and commas', (t) => {
     { type: 'identifier', name: '/home' },
     { type: 'comma' },
     { type: 'identifier', name: '/away' },
-  ], lex(string));
+  ], (new Lexer(string)).lex());
 });
 
 test('empty string has no tokens', (t) => {
   t.plan(1);
 
-  t.deepEqual([], lex(''));
+  t.deepEqual([], (new Lexer('').lex()));
 });

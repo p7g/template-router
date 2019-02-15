@@ -1,5 +1,7 @@
 const parse = require('./parser');
-const lex = require('./lexer');
+const Lexer = require('./lexer');
+
+const lex = string => (new Lexer(string)).lex();
 
 module.exports = function routes(router) {
   return function parseTemplate(strings, ...handlers) {

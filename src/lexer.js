@@ -1,31 +1,50 @@
 const isLetter = char => /^[^\s,]$/.test(char);
 
-module.exports = function lex(input) {
-  const tokens = [];
-
-  let position = 0;
-  const current = () => input[position];
-  const valid = () => current() !== undefined;
-  const advance = (amount = 1) => { position += amount; };
-  const retreat = (amount = 1) => { position -= amount; };
-  const captureIdentifier = () => {
-    let name = '';
-    while (isLetter(current())) {
-      name += current();
-      advance();
-    }
-    retreat();
-    return { type: 'identifier', name };
-  };
-
-  while (valid()) {
-    if (isLetter(current())) {
-      tokens.push(captureIdentifier());
-    } else if (current() === ',') {
-      tokens.push({ type: 'comma' });
-    }
-    advance();
+class Lexer {
+  constructor(input) {
+    this.input = input;
+    this.position = 0;
+    this.tokens = [];
   }
 
-  return tokens;
-};
+  get current() {
+    return this.input[this.position];
+  }
+
+  valid() {
+    return this.current !== undefined;
+  }
+
+  advance(amount = 1) {
+    this.position += amount;
+  }
+
+  retreat(amount = 1) {
+    this.position -= amount;
+  }
+
+  captureIdentifier() {
+    let name = '';
+    while (isLetter(this.current)) {
+      name += this.current;
+      this.advance();
+    }
+    this.retreat();
+    this.tokens.push({ type: 'identifier', name });
+  }
+
+  lex() {
+    while (this.valid()) {
+      if (isLetter(this.current)) {
+        this.captureIdentifier();
+      } else if (this.current === ',') {
+        this.tokens.push({ type: 'comma' });
+      }
+      this.advance();
+    }
+
+    return this.tokens;
+  }
+}
+
+module.exports = Lexer;
