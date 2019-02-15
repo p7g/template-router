@@ -72,8 +72,8 @@ class Parser {
     } while (this.matchToken('comma'));
   }
 
-  parseMethods() {
-    const methods = [];
+  parseIdentifierList(type, check = () => true) {
+    const items = [];
 
     this.whileList(() => {
       if (this.hasMoreTokens()) {
@@ -81,44 +81,32 @@ class Parser {
           throw new SyntaxError(`Expected identifier, found ${this.currentToken.type}`);
         }
         const { name } = this.currentToken;
-        if (!Methods.includes(name)) {
-          throw new SyntaxError(`Invalid method ${name}`);
-        }
-        methods.push(name.toLowerCase());
+        check(name);
+        items.push(name.toLowerCase());
         this.advanceToken();
       } else {
         if (!this.hasMoreValues()) {
-          throw new SyntaxError('Expected method or interpolated value');
+          throw new SyntaxError(`Expected ${type} or interpolated value`);
         }
-        methods.push(this.consumeValue());
+        items.push(this.consumeValue());
         this.advanceTokenList();
       }
     });
 
-    return methods;
+    return items;
+  }
+
+  parseMethods() {
+    return this.parseIdentifierList('method', (name) => {
+      if (!Methods.includes(name)) {
+        throw new SyntaxError(`Invalid method ${name}`);
+      }
+      return true;
+    });
   }
 
   parsePaths() {
-    const paths = [];
-
-    this.whileList(() => {
-      if (this.hasMoreTokens()) {
-        if (this.currentToken.type !== 'identifier') {
-          throw new SyntaxError(`Expected identifier, found ${this.currentToken.type}`);
-        }
-        const { name } = this.currentToken;
-        paths.push(name);
-        this.advanceToken();
-      } else {
-        if (!this.hasMoreValues()) {
-          throw new SyntaxError('Expected path or interpreted value');
-        }
-        paths.push(this.consumeValue());
-        this.advanceTokenList();
-      }
-    });
-
-    return paths;
+    return this.parseIdentifierList('path');
   }
 
   parseHandlers() {
