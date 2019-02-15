@@ -3,3 +3,11 @@ language: node_js
 node_js:
   - "node"
   - "lts/*"
+
+install:
+  - npm install --global codecov
+  - npm install
+
+script:
+  - npm run test
+  - npm run report-coverage

@@ -16,7 +16,8 @@
   ],
   "scripts": {
     "test": "eslint . && nyc ava",
-    "test:watch": "ava --watch"
+    "test:watch": "ava --watch",
+    "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },
   "devDependencies": {
     "ava": "^1.2.1",
