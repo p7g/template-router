@@ -3,6 +3,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/p7g/template-router/badge.svg?targetFile=package.json)](https://snyk.io/test/github/p7g/template-router?targetFile=package.json)
 [![Build Status](https://travis-ci.com/p7g/template-router.svg?branch=master)](https://travis-ci.com/p7g/template-router)
 [![codecov](https://codecov.io/gh/p7g/template-router/branch/master/graph/badge.svg)](https://codecov.io/gh/p7g/template-router)
+[![Maintainability](https://api.codeclimate.com/v1/badges/3b035a6d7ca177fd1f59/maintainability)](https://codeclimate.com/github/p7g/template-router/maintainability)
 
 Define routes for express, koa-router or similar using tagged template literals.
 
