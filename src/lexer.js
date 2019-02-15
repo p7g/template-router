@@ -21,12 +21,8 @@ module.exports = function lex(input) {
       continue; // eslint-disable-line no-continue
     }
 
-    switch (current()) {
-      case ',':
-        tokens.push({ type: 'comma' });
-        break;
-      default:
-        break;
+    if (current() === ',') {
+      tokens.push({ type: 'comma' });
     }
   }
 
