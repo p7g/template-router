@@ -15,7 +15,7 @@
     "koa"
   ],
   "scripts": {
-    "test": "nyc ava",
+    "test": "eslint . && nyc ava",
     "test:watch": "ava --watch"
   },
   "devDependencies": {
