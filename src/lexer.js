@@ -12,16 +12,13 @@ module.exports = function lex(input) {
   for (; valid(); position += 1) {
     if (isLetter(current())) {
       let name = '';
-      while (isLetter(current()) && valid()) {
+      while (isLetter(current())) {
         name += current();
         advance();
       }
       retreat();
       tokens.push({ type: 'identifier', name });
-      continue; // eslint-disable-line no-continue
-    }
-
-    if (current() === ',') {
+    } else if (current() === ',') {
       tokens.push({ type: 'comma' });
     }
   }
