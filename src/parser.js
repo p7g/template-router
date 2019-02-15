@@ -1,83 +1,150 @@
-const methods = [
+const Methods = [
   'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'CONNECT',
 ];
 
-function parse(tokenLists, values) {
-  if (!tokenLists || !values) {
-    throw new Error();
-  }
-  const routes = [];
-
-  while (tokenLists.length) {
-    const route = {
-      methods: [],
-      paths: [],
-      handler: null,
-    };
-
-    let tokens = tokenLists.shift();
-    // read methods
-    let token = tokens.shift();
-    do {
-      if (token && token.type === 'comma') {
-        token = tokens.shift();
-      }
-      if (token === undefined) {
-        if (values.length === 0) {
-          throw new SyntaxError('Expected method or interpolated value');
-        }
-        route.methods.push(values.shift());
-        tokens = tokenLists.shift();
-      } else {
-        if (token.type !== 'identifier') {
-          throw new SyntaxError(`Expected identifier, found ${token.type}`);
-        }
-
-        const { name } = token;
-        if (!methods.includes(name)) {
-          throw new SyntaxError(`Expected HTTP method, found ${name}`);
-        }
-
-        route.methods.push(name.toLowerCase());
-      }
-
-      token = tokens && tokens.shift();
-    } while (token && token.type === 'comma');
-
-    // read paths
-    do {
-      if (token && token.type === 'comma') {
-        token = tokens.shift();
-      }
-      if (token === undefined) {
-        if (values.length === 0) {
-          throw new SyntaxError('Expected method or interpolated value');
-        }
-        route.paths.push(values.shift());
-        tokens = tokenLists.shift();
-      } else {
-        if (token.type !== 'identifier') {
-          throw new SyntaxError(`Expected identifier, found ${token.type}`);
-        }
-
-        const { name } = token;
-
-        route.paths.push(name);
-      }
-
-      token = tokens && tokens.shift();
-    } while (token && token.type === 'comma');
-
-    const handler = values.shift();
-    if (handler === undefined) {
-      throw new SyntaxError('Expected handler');
+class Parser {
+  constructor(tokenLists, values) {
+    if (!tokenLists || !values) {
+      throw new Error();
     }
 
-    route.handler = Array.isArray(handler) ? handler : [handler];
-    routes.push(route);
+    this.tokenLists = tokenLists;
+    this.tokenListPosition = 0;
+    this.tokenPosition = 0;
+    this.values = values;
+    this.valuePosition = 0;
   }
 
-  return routes;
+  get currentValue() {
+    return this.values[this.valuePosition];
+  }
+
+  hasMoreValues() {
+    return this.valuePosition < this.values.length;
+  }
+
+  advanceValues() {
+    this.valuePosition += 1;
+  }
+
+  consumeValue() {
+    const value = this.currentValue;
+    this.advanceValues();
+    return value;
+  }
+
+  get currentTokenList() {
+    return this.tokenLists[this.tokenListPosition];
+  }
+
+  hasMoreTokenLists() {
+    return this.tokenListPosition < this.tokenLists.length;
+  }
+
+  advanceTokenList() {
+    this.tokenListPosition += 1;
+    this.tokenPosition = 0;
+  }
+
+  get currentToken() {
+    return this.currentTokenList[this.tokenPosition];
+  }
+
+  hasMoreTokens() {
+    return this.currentTokenList && this.tokenPosition < this.currentTokenList.length;
+  }
+
+  advanceToken() {
+    this.tokenPosition += 1;
+  }
+
+  matchToken(type) {
+    if (this.hasMoreTokens() && this.currentToken.type === type) {
+      this.advanceToken();
+      return true;
+    }
+    return false;
+  }
+
+  whileList(fn) {
+    do {
+      fn();
+    } while (this.matchToken('comma'));
+  }
+
+  parseMethods() {
+    const methods = [];
+
+    this.whileList(() => {
+      if (this.hasMoreTokens()) {
+        if (this.currentToken.type !== 'identifier') {
+          throw new SyntaxError(`Expected identifier, found ${this.currentToken.type}`);
+        }
+        const { name } = this.currentToken;
+        if (!Methods.includes(name)) {
+          throw new SyntaxError(`Invalid method ${name}`);
+        }
+        methods.push(name.toLowerCase());
+        this.advanceToken();
+      } else {
+        if (!this.hasMoreValues()) {
+          throw new SyntaxError('Expected method or interpolated value');
+        }
+        methods.push(this.consumeValue());
+        this.advanceTokenList();
+      }
+    });
+
+    return methods;
+  }
+
+  parsePaths() {
+    const paths = [];
+
+    this.whileList(() => {
+      if (this.hasMoreTokens()) {
+        if (this.currentToken.type !== 'identifier') {
+          throw new SyntaxError(`Expected identifier, found ${this.currentToken.type}`);
+        }
+        const { name } = this.currentToken;
+        paths.push(name);
+        this.advanceToken();
+      } else {
+        if (!this.hasMoreValues()) {
+          throw new SyntaxError('Expected path or interpreted value');
+        }
+        paths.push(this.consumeValue());
+        this.advanceTokenList();
+      }
+    });
+
+    return paths;
+  }
+
+  parseHandlers() {
+    if (!this.hasMoreValues()) {
+      throw new SyntaxError('Expected handler');
+    }
+    const value = this.consumeValue();
+    return Array.isArray(value) ? value : [value];
+  }
+
+  parse() {
+    const routes = [];
+
+    while (this.hasMoreTokenLists() || this.hasMoreTokens()) {
+      const methods = this.parseMethods();
+      const paths = this.parsePaths();
+      const handlers = this.parseHandlers();
+
+      routes.push({ methods, paths, handlers });
+      if (!this.hasMoreTokens()) {
+        this.advanceTokenList();
+      }
+    }
+
+    return routes;
+  }
 }
 
-module.exports = parse;
+module.exports = Parser;

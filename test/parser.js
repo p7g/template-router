@@ -1,14 +1,15 @@
 const test = require('ava');
-const parse = require('../src/parser');
+const Parser = require('../src/parser');
 const Lexer = require('../src/lexer');
 
 const id = a => a;
 const lex = string => (new Lexer(string)).lex();
+const parse = (...args) => (new Parser(...args)).parse();
 
 test('parsing valid strings', (t) => {
   t.plan(2);
 
-  const expected = { methods: ['get'], paths: ['/hullo/:name'], handler: [id] };
+  const expected = { methods: ['get'], paths: ['/hullo/:name'], handlers: [id] };
   const testString = 'GET /hullo/:name';
   const withWhitespace = `
   GET

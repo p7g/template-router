@@ -47,13 +47,11 @@ test('multiple routes', (t) => {
     },
   };
 
-  /* eslint-disable no-unused-expressions, indent */
-  routes(mockRouter)`
+  return routes(mockRouter)`
     GET /hullo/:name ${expectedHandler1}
 
     POST /abc/123 ${expectedHandler2}
   `;
-  /* eslint-enable */
 });
 
 test('multiple methods', (t) => {
